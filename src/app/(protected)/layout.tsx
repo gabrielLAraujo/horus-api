@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import Navbar from '@/components/Navbar'
+import Navigation from '@/components/Navigation'
 
 export default function ProtectedLayout({
   children,
@@ -15,28 +15,18 @@ export default function ProtectedLayout({
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login')
+      router.push('/auth/signin')
     }
   }, [status, router])
 
   if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-600"></div>
-      </div>
-    )
-  }
-
-  if (!session) {
-    return null
+    return <div>Carregando...</div>
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {children}
-      </main>
-    </div>
+    <>
+      <Navigation />
+      <main className="container mx-auto px-4 py-8">{children}</main>
+    </>
   )
 } 

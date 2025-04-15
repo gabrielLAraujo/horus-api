@@ -50,15 +50,18 @@ yarn install
 
 3. Configure as variáveis de ambiente:
 ```bash
+# Opção 1: Use o script de configuração
+./scripts/setup-env.sh
+
+# Opção 2: Configure manualmente
 cp .env.example .env
 ```
 
 4. Edite o arquivo `.env` com suas configurações:
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/horus_db?schema=public"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-NEXTAUTH_SECRET="sua-chave-secreta-aqui"
 NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="sua-chave-secreta-aqui"
 ```
 
 5. Execute as migrações do banco de dados:
@@ -83,6 +86,13 @@ yarn dev
 ```
 
 8. Acesse a aplicação em [http://localhost:3000](http://localhost:3000)
+
+## Segurança
+
+- **Nunca** comite arquivos `.env` para o repositório
+- Use o arquivo `.env.example` como modelo para criar seu próprio arquivo `.env`
+- Mantenha suas chaves secretas e credenciais seguras
+- O hook de pre-commit irá impedir que arquivos `.env` sejam adicionados acidentalmente
 
 ## API Endpoints
 
