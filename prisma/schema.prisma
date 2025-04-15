@@ -52,19 +52,47 @@ model Log {
   @@index([timestamp])
 }
 
-model Request {
-  id          String   @id @default(uuid())
-  request_id  String   @unique
-  timestamp   DateTime
-  method      String
-  path        String
-  status      Int
-  duration_ms Int
-  customData  Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Route {
+  id           String    @id @default(cuid())
+  instanceUuid String
+  messageUuid  String
+  method       String
+  path         String
+  versions     Json?
+  client       String?
+  requests     Request[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  @@index([request_id])
+  @@unique([instanceUuid, messageUuid, method, path])
+  @@index([instanceUuid])
+  @@index([messageUuid])
+  @@index([method])
+  @@index([path])
+}
+
+model Request {
+  id              String   @id @default(cuid())
+  routeId         String
+  route           Route    @relation(fields: [routeId], references: [id])
+  timestamp       DateTime
+  consumer        String?
+  method          String
+  path            String
+  statusCode      Int
+  requestCount    Int
+  requestSizeSum  Int
+  responseSizeSum Int
+  responseTimes   Json?
+  requestSizes    Json?
+  responseSizes   Json?
+  validationErrors Json?
+  serverErrors    Json?
+  consumers       Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([routeId])
   @@index([timestamp])
   @@index([method])
   @@index([path])
