@@ -87,6 +87,39 @@ yarn dev
 
 8. Acesse a aplicação em [http://localhost:3000](http://localhost:3000)
 
+## Solução de Problemas
+
+### Erros de Build
+
+Se você encontrar erros durante o build, tente os seguintes passos:
+
+1. Limpe o cache e reinstale as dependências:
+```bash
+# Use o script de limpeza
+./scripts/clean-install.sh
+
+# Ou execute manualmente
+rm -rf .next node_modules
+npm cache clean --force
+npm install
+npx prisma generate
+```
+
+2. Verifique se todas as dependências estão instaladas corretamente:
+```bash
+npm install --save-dev @types/react @types/react-dom typescript
+```
+
+3. Gere o Prisma Client:
+```bash
+npx prisma generate
+```
+
+4. Execute o build:
+```bash
+npm run build
+```
+
 ## Segurança
 
 - **Nunca** comite arquivos `.env` para o repositório
