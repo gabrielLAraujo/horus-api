@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Metric {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  appName   String
+  endpoint  String
+  method    String
+  duration  Float    // em milissegundos
+  status    Int
+  metadata  Json?    // dados adicionais em formato JSON
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([appName])
+  @@index([endpoint])
+  @@index([timestamp])
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  appName   String
+  level     String   // INFO, WARN, ERROR, etc
+  message   String
+  context   Json?    // dados adicionais do contexto
+  trace     String?  // stack trace para erros
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([appName])
+  @@index([level])
+  @@index([timestamp])
+}
+
+model Request {
+  id          String   @id @default(uuid())
+  request_id  String   @unique
+  timestamp   DateTime
+  method      String
+  path        String
+  status      Int
+  duration_ms Int
+  customData  Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([request_id])
+  @@index([timestamp])
+  @@index([method])
+  @@index([path])
+} 
