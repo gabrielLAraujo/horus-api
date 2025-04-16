@@ -1,4 +1,4 @@
-import { app } from './src/app'
+import { app } from '../src/app'
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
