@@ -2,11 +2,12 @@
   "name": "horus-api",
   "version": "1.0.0",
   "description": "API para logging de requisições",
-  "main": "src/server.ts",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate && tsc",
     "start": "node dist/server.js",
+    "vercel-build": "prisma generate && tsc",
     "seed": "tsx prisma/seed.ts",
     "postinstall": "prisma generate",
     "seed:debug": "tsx --trace-warnings prisma/seed.ts",

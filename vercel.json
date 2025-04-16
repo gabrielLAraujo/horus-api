@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
   "builds": [
     {
       "src": "dist/server.js",
@@ -16,8 +16,5 @@
       "src": "/(.*)",
       "dest": "dist/server.js"
     }
-  ],
-  "run": {
-    "command": "npm run start"
-  }
+  ]
 } 
