@@ -1,95 +1,107 @@
 import { PrismaClient } from '@prisma/client'
-import { hash } from 'bcryptjs'
+import { hash } from 'bcrypt'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // Limpa o banco de dados
-  await prisma.metric.deleteMany()
-  await prisma.log.deleteMany()
-  await prisma.user.deleteMany()
-
-  // Cria usuário admin
-  const adminPassword = await hash('admin', 10)
-  const admin = await prisma.user.create({
-    data: {
-      email: 'admin@horus.com',
-      password: adminPassword,
+  console.log('Iniciando seed...')
+  
+  // Criar usuário mock
+  console.log('Criando usuário...')
+  const hashedPassword = await hash('senha123', 10)
+  const user = await prisma.user.upsert({
+    where: { email: 'admin@exemplo.com' },
+    update: {},
+    create: {
+      email: 'admin@exemplo.com',
       name: 'Administrador',
+      password: hashedPassword,
     },
   })
+  console.log('Usuário criado:', user)
 
-  console.log('Usuário admin criado:', admin.email)
+  // Criar projetos mock
+  console.log('Criando projetos...')
+  const project1 = await prisma.project.create({
+    data: {
+      name: 'Projeto Exemplo 1',
+      description: 'Descrição do projeto exemplo 1',
+      userId: user.id,
+    },
+  })
+  console.log('Projeto 1 criado:', project1)
 
-  // Cria métricas de exemplo
-  const metrics = [
-    {
-      appName: 'api-exemplo',
-      endpoint: '/api/users',
+  const project2 = await prisma.project.create({
+    data: {
+      name: 'Projeto Exemplo 2',
+      description: 'Descrição do projeto exemplo 2',
+      userId: user.id,
+    },
+  })
+  console.log('Projeto 2 criado:', project2)
+
+  // Criar logs mock para o projeto 1
+  console.log('Criando logs para projeto 1...')
+  const log1 = await prisma.log.create({
+    data: {
+      messageId: 'msg-001',
       method: 'GET',
+      path: '/api/users',
+      statusCode: 200,
       duration: 150.5,
-      status: 200,
-      metadata: { userId: '123', role: 'admin' },
+      requestSize: '1024',
+      responseSize: '2048',
+      timestamp: new Date(),
+      projectId: project1.id,
     },
-    {
-      appName: 'api-exemplo',
-      endpoint: '/api/products',
+  })
+  console.log('Log 1 criado:', log1)
+
+  await prisma.logBody.create({
+    data: {
+      logId: log1.id,
+      requestBody: { query: { page: 1 } },
+      reqHeaders: { 'content-type': 'application/json' },
+      respBody: { users: [] },
+      respHeaders: { 'content-type': 'application/json' },
+    },
+  })
+  console.log('LogBody 1 criado')
+
+  // Criar logs mock para o projeto 2
+  console.log('Criando logs para projeto 2...')
+  const log2 = await prisma.log.create({
+    data: {
+      messageId: 'msg-002',
       method: 'POST',
-      duration: 250.8,
-      status: 201,
-      metadata: { productId: '456', category: 'electronics' },
+      path: '/api/products',
+      statusCode: 201,
+      duration: 200.3,
+      requestSize: '512',
+      responseSize: '1024',
+      timestamp: new Date(),
+      projectId: project2.id,
     },
-    {
-      appName: 'api-exemplo',
-      endpoint: '/api/orders',
-      method: 'GET',
-      duration: 180.2,
-      status: 404,
-      metadata: { orderId: '789' },
-    },
-  ]
+  })
+  console.log('Log 2 criado:', log2)
 
-  for (const metric of metrics) {
-    await prisma.metric.create({
-      data: metric,
-    })
-  }
-
-  // Cria logs de exemplo
-  const logs = [
-    {
-      appName: 'api-exemplo',
-      level: 'INFO',
-      message: 'Usuário autenticado com sucesso',
-      context: { userId: '123', ip: '192.168.1.1' },
+  await prisma.logBody.create({
+    data: {
+      logId: log2.id,
+      requestBody: { name: 'Produto Teste', price: 99.99 },
+      reqHeaders: { 'content-type': 'application/json' },
+      respBody: { id: 1, name: 'Produto Teste', price: 99.99 },
+      respHeaders: { 'content-type': 'application/json' },
     },
-    {
-      appName: 'api-exemplo',
-      level: 'WARN',
-      message: 'Tentativa de acesso não autorizado',
-      context: { userId: '456', ip: '192.168.1.2' },
-    },
-    {
-      appName: 'api-exemplo',
-      level: 'ERROR',
-      message: 'Erro ao processar pagamento',
-      context: { orderId: '789', error: 'Insufficient funds' },
-      trace: 'Error: Insufficient funds\n    at PaymentProcessor.process (/app/services/payment.js:42:15)\n    at async OrderService.createOrder (/app/services/order.js:78:23)',
-    },
-  ]
+  })
+  console.log('LogBody 2 criado')
 
-  for (const log of logs) {
-    await prisma.log.create({
-      data: log,
-    })
-  }
-
-  console.log('Banco de dados populado com sucesso!')
+  console.log('Seed concluído com sucesso!')
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error('Erro durante o seed:', e)
     process.exit(1)
   })
   .finally(async () => {

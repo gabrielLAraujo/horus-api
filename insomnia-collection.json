@@ -1,0 +1,203 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2024-03-16T10:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v8",
+  "resources": [
+    {
+      "_id": "wrk_horus",
+      "parentId": null,
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "name": "Horus API",
+      "description": "",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "fld_users",
+      "parentId": "wrk_horus",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "name": "Usuários",
+      "description": "",
+      "environment": {}
+    },
+    {
+      "_id": "fld_projects",
+      "parentId": "wrk_horus",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "name": "Projetos",
+      "description": "",
+      "environment": {}
+    },
+    {
+      "_id": "fld_logs",
+      "parentId": "wrk_horus",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "name": "Logs",
+      "description": "",
+      "environment": {}
+    },
+    {
+      "_id": "req_create_user",
+      "parentId": "fld_users",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/users",
+      "name": "Criar Usuário",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"name\": \"Exemplo Usuário\",\n\t\"email\": \"exemplo@email.com\",\n\t\"password\": \"senha123\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_get_user",
+      "parentId": "fld_users",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/users/:id",
+      "name": "Buscar Usuário",
+      "description": "",
+      "method": "GET",
+      "parameters": [
+        {
+          "name": "id",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "_id": "req_create_project",
+      "parentId": "fld_projects",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/projects",
+      "name": "Criar Projeto",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"name\": \"Projeto Exemplo\",\n\t\"description\": \"Descrição do projeto\",\n\t\"userId\": \"ID_DO_USUARIO\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_get_projects",
+      "parentId": "fld_projects",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/projects/:userId",
+      "name": "Listar Projetos do Usuário",
+      "description": "",
+      "method": "GET",
+      "parameters": [
+        {
+          "name": "userId",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "_id": "req_create_log",
+      "parentId": "fld_logs",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/projects/:projectId/logs",
+      "name": "Criar Log",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"messageId\": \"msg-123\",\n\t\"method\": \"GET\",\n\t\"path\": \"/api/example\",\n\t\"statusCode\": 200,\n\t\"duration\": 150.5,\n\t\"requestSize\": \"1024\",\n\t\"responseSize\": \"2048\",\n\t\"timestamp\": \"2024-03-16T10:00:00.000Z\"\n}"
+      },
+      "parameters": [
+        {
+          "name": "projectId",
+          "value": ""
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_create_log_body",
+      "parentId": "fld_logs",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/projects/:projectId/logs/body",
+      "name": "Criar Log Body",
+      "description": "",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n\t\"messageId\": \"msg-123\",\n\t\"request\": {\n\t\t\"body\": { \"example\": \"request\" },\n\t\t\"headers\": { \"content-type\": \"application/json\" }\n\t},\n\t\"response\": {\n\t\t\"body\": { \"example\": \"response\" },\n\t\t\"headers\": { \"content-type\": \"application/json\" }\n\t}\n}"
+      },
+      "parameters": [
+        {
+          "name": "projectId",
+          "value": ""
+        }
+      ],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ]
+    },
+    {
+      "_id": "req_get_logs",
+      "parentId": "fld_logs",
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "url": "{{ _.baseUrl }}/projects/:projectId/logs",
+      "name": "Listar Logs do Projeto",
+      "description": "",
+      "method": "GET",
+      "parameters": [
+        {
+          "name": "projectId",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "_id": "env_base",
+      "parentId": null,
+      "modified": 1647424000000,
+      "created": 1647424000000,
+      "name": "Base Environment",
+      "data": {
+        "baseUrl": "http://localhost:3000"
+      },
+      "dataPropertyOrder": {
+        "&": ["baseUrl"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1647424000000
+    }
+  ]
+} 
