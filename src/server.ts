@@ -43,21 +43,22 @@ app.get('/health', async () => {
   return { status: 'ok' }
 })
 
-const start = async () => {
-  try {
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000
-    const host = process.env.HOST || '0.0.0.0'
-    
-    await app.listen({ port, host })
-    console.log(`Servidor rodando em http://${host}:${port}`)
-    console.log('Documentação disponível em: http://localhost:3000/docs')
-  } catch (err) {
-    console.error(err)
-    process.exit(1)
+// Inicializa o servidor apenas se não estiver em ambiente de produção (Vercel)
+  const start = async () => {
+    try {
+      const port = process.env.PORT ? parseInt(process.env.PORT) : 3000
+      const host = process.env.HOST || '0.0.0.0'
+      
+      await app.listen({ port, host })
+      console.log(`Servidor rodando em http://${host}:${port}`)
+      console.log('Documentação disponível em: http://localhost:3000/docs')
+    } catch (err) {
+      console.error(err)
+      process.exit(1)
+    }
   }
-}
 
-start()
+  start()
 
 // Exporta a aplicação para a Vercel
 export default app 
