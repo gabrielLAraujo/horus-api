@@ -57,4 +57,7 @@ const start = async () => {
   }
 }
 
-start() 
+start()
+
+// Exporta a aplicação para a Vercel
+export default app 
