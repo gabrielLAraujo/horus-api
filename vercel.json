@@ -9,8 +9,15 @@
   ],
   "routes": [
     {
+      "src": "/",
+      "dest": "/docs"
+    },
+    {
       "src": "/(.*)",
       "dest": "dist/server.js"
     }
-  ]
+  ],
+  "run": {
+    "command": "npm run start"
+  }
 } 
