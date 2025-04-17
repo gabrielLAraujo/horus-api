@@ -1,13 +1,48 @@
-import { FastifyInstance } from 'fastify'
-import { z } from 'zod'
-import { prisma } from '../lib/prisma'
-import { Prisma } from '@prisma/client'
+import { FastifyInstance } from "fastify";
+import { z } from "zod";
+import { prisma } from "../lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export async function logRoutes(app: FastifyInstance) {
-  app.post('/projects/:projectId/logs', async (request, reply) => {
+  app.post("/projects/:projectId/routes", async (request, reply) => {
     const paramsSchema = z.object({
-      projectId: z.string().uuid()
-    })
+      projectId: z.string().uuid(),
+    });
+
+    //array de rotas
+    const routeSchema = z
+      .object({
+        path: z.string(),
+        method: z.string(),
+      })
+      .array();
+
+    const { projectId } = paramsSchema.parse(request.params);
+    const routeData = routeSchema.parse(request.body);
+    const projectExist = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
+
+    if (!projectExist) {
+      return reply.status(404).send({ error: "Projeto não encontrado" });
+    }
+
+    const routes = await prisma.route.createMany({
+      data: routeData.map((route) => ({
+        path: route.path,
+        method: route.method,
+        projectId,
+      })),
+    });
+
+    return reply.status(201).send(routes);
+  });
+
+  app.post("/projects/:projectId/logs", async (request, reply) => {
+    const paramsSchema = z.object({
+      projectId: z.string().uuid(),
+    });
 
     const logSchema = z.object({
       messageId: z.string(),
@@ -17,19 +52,19 @@ export async function logRoutes(app: FastifyInstance) {
       duration: z.number(),
       requestSize: z.string().or(z.number()).nullable().optional(),
       responseSize: z.string().or(z.number()).nullable().optional(),
-      error: z.unknown().optional(),
-      timestamp: z.string().or(z.date())
-    })
+      timestamp: z.string().or(z.date()),
+    });
 
-    const { projectId } = paramsSchema.parse(request.params)
-    const logData = logSchema.parse(request.body)
+    const { projectId } = paramsSchema.parse(request.params);
+    const logData = logSchema.parse(request.body);
 
-    const project = await prisma.project.findUnique({
-      where: { id: projectId }
-    })
+    const projectExist = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: { id: true },
+    });
 
-    if (!project) {
-      return reply.status(404).send({ error: 'Projeto não encontrado' })
+    if (!projectExist) {
+      return reply.status(404).send({ error: "Projeto não encontrado" });
     }
 
     const log = await prisma.log.create({
@@ -41,78 +76,80 @@ export async function logRoutes(app: FastifyInstance) {
         duration: logData.duration,
         requestSize: logData.requestSize?.toString(),
         responseSize: logData.responseSize?.toString(),
-        error: logData.error ? JSON.stringify(logData.error) : Prisma.JsonNull,
         timestamp: new Date(logData.timestamp),
-        projectId
-      }
-    })
+        projectId,
+      },
+    });
 
-    return reply.status(201).send(log)
-  })
+    return reply.status(201).send(log);
+  });
 
-  app.post('/projects/:projectId/logs/body', async (request, reply) => {
-    const paramsSchema = z.object({
-      projectId: z.string().uuid()
-    })
-
+  app.post("/projects/:projectId/logs/body", async (request, reply) => {
     const bodySchema = z.object({
       messageId: z.string(),
-      request: z.object({
-        body: z.unknown().optional(),
-        headers: z.unknown().optional()
-      }),
-      response: z.object({
-        body: z.unknown().optional(),
-        headers: z.unknown().optional()
-      })
-    })
+      method: z.string(),
+      path: z.string(),
+      url: z.string(),
+      request: z
+        .object({
+          body: z.string().optional(),
+          headers: z.array(z.tuple([z.string(), z.string()])).optional(),
+        })
+        .optional(),
+      response: z
+        .object({
+          body: z.string().optional(),
+          headers: z.array(z.tuple([z.string(), z.string()])).optional(),
+        })
+        .optional(),
+      exception: z.any().optional(),
+    });
 
-    const { projectId } = paramsSchema.parse(request.params)
-    const bodyData = bodySchema.parse(request.body)
-
-    const log = await prisma.log.findFirst({
-      where: { 
-        AND: [
-          { messageId: bodyData.messageId },
-          { projectId }
-        ]
+    try {
+      const bodyData = bodySchema.safeParse(request.body);
+      if (!bodyData.success) {
+        console.error("Erro de validação:", bodyData.error);
+        return reply
+          .status(400)
+          .send({ error: "Dados inválidos", details: bodyData.error });
       }
-    })
 
-    if (!log) {
-      return reply.status(404).send({ error: 'Log não encontrado' })
+      const logBody = await prisma.logBody.create({
+        data: {
+          messageId: bodyData.data.messageId,
+          method: bodyData.data.method,
+          path: bodyData.data.path,
+          url: bodyData.data.url,
+          request: bodyData.data.request || Prisma.JsonNull,
+          response: bodyData.data.response || Prisma.JsonNull,
+          exception: bodyData.data.exception || Prisma.JsonNull,
+        },
+      });
+
+      return reply.status(201).send(logBody);
+    } catch (error) {
+      console.error("Erro interno:", error);
+      return reply.status(500).send({ error: "Erro interno do servidor" });
     }
+  });
 
-    const logBody = await prisma.logBody.create({
-      data: {
-        logId: log.id,
-        requestBody: bodyData.request.body || Prisma.JsonNull,
-        reqHeaders: bodyData.request.headers || Prisma.JsonNull,
-        respBody: bodyData.response.body || Prisma.JsonNull,
-        respHeaders: bodyData.response.headers || Prisma.JsonNull
-      }
-    })
-
-    return reply.status(201).send(logBody)
-  })
-
-  app.get('/projects/:projectId/logs', async (request, reply) => {
+  app.get("/projects/:projectId/logs", async (request, reply) => {
     const paramsSchema = z.object({
-      projectId: z.string().uuid()
-    })
+      projectId: z.string().uuid(),
+    });
 
-    const { projectId } = paramsSchema.parse(request.params)
+    const { projectId } = paramsSchema.parse(request.params);
 
     const logs = await prisma.log.findMany({
       where: { projectId },
       include: {
-        bodyData: true
+        bodyData: true,
       },
       orderBy: {
-        timestamp: 'desc'
-      }
-    })
+        timestamp: "desc",
+      },
+    });
 
-    return logs
-  })
-} 
+    return logs;
+  });
+}

@@ -3,7 +3,7 @@ import { app } from './app'
 const start = async () => {
   try {
     const port = Number(process.env.PORT) || 3000
-    const host = process.env.HOST || '0.0.0.0'
+    const host = process.env.HOST || 'localhost'
 
     await app.listen({ port, host })
     console.log(`Servidor rodando em http://${host}:${port}`)
